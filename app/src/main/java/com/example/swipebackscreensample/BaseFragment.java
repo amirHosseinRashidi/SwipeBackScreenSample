@@ -2,75 +2,74 @@ package com.example.swipebackscreensample;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.DragEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 public class BaseFragment extends Fragment {
     private static final String TAG = "BaseFragment";
+    float dX;
 
 
-    public void enableOnDragBack(final View view) {
+    public void onDragEvent(final ViewGroup view, MotionEvent event) {
 
-        view.setOnTouchListener(new View.OnTouchListener() {
-            float dX;
-            float defaultX;
-            float rawX = 0;
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                dX = view.getX() - event.getRawX();
+                break;
 
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
+            case MotionEvent.ACTION_UP:
+                Log.i(TAG, "\nrawX location: " + event.getRawX());
+                Log.i(TAG, "\nview.X: " + view.getX());
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+                int width = displayMetrics.widthPixels;
+                if (view.getX() < width / 3)
+                    view.animate().x(0).setDuration(80).start();
+                else {
+                    view.animate().x(width).setDuration(80).setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            super.onAnimationEnd(animation);
 
-                    case MotionEvent.ACTION_DOWN:
-                        dX = v.getX() - event.getRawX();
-                        break;
-
-                    case MotionEvent.ACTION_UP:
-                        Log.i(TAG, "\nrawX location: " + event.getRawX());
-                        Log.i(TAG, "\nview.X: " + v.getX() );
-                        DisplayMetrics displayMetrics = new DisplayMetrics();
-                        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-                        int width = displayMetrics.widthPixels;
-                        if (event.getRawX() < width/2)
-                            v.animate().x(defaultX).setDuration(110).start();
-                        else {
-                            v.animate().x(width).setDuration(110).setListener(new AnimatorListenerAdapter() {
-                                @Override
-                                public void onAnimationEnd(Animator animation) {
-                                    super.onAnimationEnd(animation);
-                                    getActivity().getSupportFragmentManager().popBackStack();
-                                }
-                            }).start();
+                            getActivity().getSupportFragmentManager().popBackStack();
                         }
-                        break;
+                    }).start();
+                }
+                break;
 
-                    case MotionEvent.ACTION_MOVE:
+            case MotionEvent.ACTION_MOVE:
 //                        Log.i(TAG, "\nv.getX location: " + v.getX());
 //                        Log.i(TAG, "\nrawX location: " + event.getRawX());
 //                        Log.i(TAG, "\nDX location: " + (v.getX() - event.getRawX()));
 
 
-                        if (v.getX() >= -3) {
-                            v.animate()
-                                    .x(event.getRawX() + dX)
-                                    .setDuration(0)
-                                    .start();
-                        }
+                if (view.getX() > -1) {
+                    view.animate()
+                            .x(event.getRawX() + dX)
+                            .setDuration(0)
+                            .start();
+                }
 
 //                            Log.d("SwipeTest", "\nfalseX " + tv_false.getX() + "  vX:" + v.getTranslationX() + "\nTrueX " + tv_true.getX());
 //                            Log.d("SwipeTest", "\n\nevent.getRawX(): " + event.getRawX());
 
-                        break;
-                    default:
-                        return false;
-                }
-                return true;
-            }
+                break;
+            default:
 
-        });
+        }
+
+
     }
+
 }

@@ -26,14 +26,11 @@ public class FirstFragment extends BaseFragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         root = inflater.inflate(R.layout.fragment_first, container, false);
-        enableOnDragBack(root);
         btnGoSecondFragment = root.findViewById(R.id.btn_first_goSecondFragment);
         btnGoSecondFragment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getContext(), "Clicked", Toast.LENGTH_SHORT).show();
-                getActivity().getSupportFragmentManager().beginTransaction().add(R.id.fl_main_container,new SecondFragment()).addToBackStack("secondFragment").commit();
-
+                ((MainActivity)getActivity()).addFragment(MainActivity.FragNames.SECOND);
             }
         });
         return root;
